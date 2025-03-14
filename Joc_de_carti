@@ -1,0 +1,203 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+typedef struct carti{
+ int carte;
+ struct carti *next;
+}node_t;
+typedef struct jucatori{
+    char nume[21];
+    node_t *lista;
+    struct jucatori *next;
+}node_c;
+node_t *adauga_carte(node_t *head, int x){
+    node_t *ptr, *nod_nou;
+    if(head==NULL){
+        head=(node_t*)  malloc (sizeof(node_t));
+    if(head!=NULL){
+        head->carte=x;
+        head->next=NULL;
+    }
+    return head;
+    }
+    ptr=head;
+    while(ptr->next!=NULL){
+        ptr=ptr->next;
+    }
+    nod_nou=(node_t*) malloc (sizeof(node_t));
+    if(nod_nou!=NULL){
+        nod_nou->carte=x;
+        nod_nou->next=NULL;
+    }
+    ptr->next=nod_nou;
+    return head;
+}
+node_c *adauga_jucator(node_c *head, char nume[21], node_t *lista){
+    node_c *ptr, *nod_nou;
+    if(head==NULL){
+        head=(node_c*) malloc (sizeof(node_c));
+    if(head!=NULL){
+        strcpy(head->nume,nume);
+        head->lista=lista;
+        head->next=NULL;
+    }
+    return head;
+    }
+    ptr=head;
+    while(ptr->next!=NULL){
+        ptr=ptr->next;
+    }
+    nod_nou=(node_c*) malloc (sizeof(node_c));
+    if(nod_nou!=NULL){
+        strcpy(nod_nou->nume,nume);
+        nod_nou->lista=lista;
+        nod_nou->next=NULL;
+    }
+    ptr->next=nod_nou;
+    return head;
+}
+void afisare_carti(node_t *head){
+    node_t *ptr=head;
+    while(ptr!=NULL){
+        printf("%d ",ptr->carte);
+        ptr=ptr->next;
+    }
+}
+void afisare_jucatori(node_c *head){
+    node_c *ptr=head;
+    while(ptr!=NULL){
+        printf("%s ",ptr->nume);
+            afisare_carti(ptr->lista);
+            printf("\n");
+            ptr=ptr->next;
+        }
+    }
+node_c *StergePrimulNod(node_c *head){
+    node_c *sters;
+    if(head->next==NULL){
+        free(head);
+        return NULL;
+    }
+    else
+    {
+        sters=head;
+        head=head->next;
+        free(sters);
+        return head;
+    }
+}
+node_c *StergeUltimulNod(node_c *head){
+    node_c *ptr=head, *sters;
+    if(head->next==NULL){
+        free(head);
+        return NULL;
+    }
+    while(ptr->next!=NULL){
+        if(ptr->next->next==NULL){
+            sters=ptr->next;
+            ptr->next=NULL;
+            free(sters);
+            return head;
+        }
+        ptr=ptr->next;
+    }
+    return head;
+}
+node_c *StergeNod(node_c *head, int carte){
+    node_c *ptr=head, *sters;
+    if(head->lista->carte==carte)
+    return StergePrimulNod(head);
+    while(ptr->next!=NULL){
+        if(ptr->next->lista->carte==carte)
+        {
+            if(ptr->next->next==NULL)
+            return StergeUltimulNod(head);
+            else
+            {
+                sters=ptr->next;
+                ptr->next=ptr->next->next;
+                free(sters);
+                return head;
+            }
+        }
+        
+        ptr=ptr->next;
+    }
+    return head;
+}
+void afisare_nume(node_c *head){
+    node_c *ptr=head;
+    while(ptr!=NULL){
+        printf("%s\n",ptr->nume);
+        ptr=ptr->next;
+    }
+    printf("\n");
+}
+int minim_lista(node_c *head){
+    int minim=15;
+    node_c *ptr=head;
+    while(ptr!=NULL){
+        if(minim>ptr->lista->carte)
+        minim=ptr->lista->carte;
+        ptr=ptr->next;
+    }
+    return minim;
+}
+void afisare_castigator(node_c *jucatori, int n){
+     node_c *ptr;
+    int minim=0;
+    for(int i=0;i<n-1;++i){
+        minim=minim_lista(jucatori);
+       // printf("%d",minim);
+        jucatori=StergeNod(jucatori,minim);
+        afisare_nume(jucatori);
+       
+        ptr=jucatori;
+        while(ptr!=NULL){
+            ptr->lista=ptr->lista->next;
+            ptr=ptr->next; 
+        } 
+        
+        
+    }
+}
+
+int main(){
+    int comanda;
+    scanf("%d",&comanda);
+    if(comanda==1){
+        int n,carte;
+        node_c *jucatori=NULL;
+        node_t *carti;
+        char nume[21];
+        scanf("%d",&n);
+        for(int i=0;i<n;++i){
+            scanf("%s",nume);
+            carti=NULL;
+            for(int j=0;j<n-1;++j){
+                scanf("%d",&carte);
+                carti=adauga_carte(carti,carte);
+            }
+            jucatori=adauga_jucator(jucatori,nume,carti);
+        }
+        afisare_jucatori(jucatori);
+    }
+    if(comanda==2){
+        int n,carte;
+        node_c *jucatori=NULL;
+        node_t *carti;
+        char nume[21];
+        scanf("%d",&n);
+        for(int i=0;i<n;++i){
+            scanf("%s",nume);
+            carti=NULL;
+            for(int j=0;j<n-1;++j){
+                scanf("%d",&carte);
+                carti=adauga_carte(carti,carte);
+            }
+            jucatori=adauga_jucator(jucatori,nume,carti);
+        }
+        afisare_castigator(jucatori,n);
+    }
+    return 0;
+}
