@@ -1,0 +1,180 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+struct NOD{
+    char cuvant[21];
+    struct NOD *stanga;
+    struct NOD *dreapta;
+};
+struct nod{
+  char cuvant[21];
+  struct nod *next;
+};
+struct baza_cuvinte{
+    struct NOD **cuvinte;
+};
+
+struct nod* adauga_cuvant(struct nod *head, char cuv[21]){
+    struct nod *nod_nou, *ptr;
+    if(head==NULL){
+        head=(struct nod*) malloc (sizeof(struct nod));
+        if(head!=NULL){
+        strcpy(head->cuvant,cuv);
+        head->next=NULL;
+    }
+    return head;
+    }
+    ptr=head;
+    while(ptr->next!=NULL){
+        ptr=ptr->next;
+    }
+    nod_nou=(struct nod*) malloc (sizeof(struct nod));
+    if(nod_nou!=NULL){
+        strcpy(nod_nou->cuvant,cuv);
+        nod_nou->next=NULL;
+    }
+    ptr->next=nod_nou;
+    return head;
+    
+}
+struct NOD *creare_cuvant(char cuvant[21]){
+    struct NOD *nod_nou;
+    nod_nou=(struct NOD*) malloc (sizeof(struct NOD));
+    strcpy(nod_nou->cuvant,cuvant);
+    nod_nou->stanga=NULL;
+    nod_nou->dreapta=NULL;
+    return nod_nou;
+}
+struct NOD *adauga_cuvant(struct NOD *arbore, char cuvant[21]){
+    struct NOD *nod_nou, *nod_parinte, *nod_curent;
+    nod_nou=creare_cuvant(cuvant);
+    if(arbore==NULL){
+        arbore=nod_nou;
+        return arbore;
+    }
+    nod_curent=arbore;
+    while(nod_curent!=NULL){
+        nod_parinte=nod_curent;
+        if(strcmp(cuvant,nod_curent->cuvant)<0)
+        nod_curent=nod_curent->stanga;
+        else
+        nod_curent=nod_curent->dreapta;
+    }
+    if(strcmp(cuvant,nod_parinte->cuvant)<0)
+    nod_parinte->stanga=nod_nou;
+    else
+    nod_parinte->dreapta=nod_nou;
+    return arbore;
+}
+struct baza_cuvinte *adauga_baza(struct baza_cuvinte* baza, char cuvant[21]){
+    baza->cuvinte[cuvant[0]]=adauga_cuvant(baza->cuvinte[cuvant[0]],cuvant);
+    return baza;
+}
+void afisare_preordine(struct NOD *arbore){
+    if(arbore!=NULL){
+       
+        printf("%s\n",arbore->cuvant);
+        afisare_preordine(arbore->stanga);
+        afisare_preordine(arbore->dreapta);
+    }
+}
+
+void afisare_inordine(struct NOD *arbore){
+    if(arbore!=NULL){
+        afisare_inordine(arbore->stanga);
+        printf("%s\n",arbore->cuvant);
+        afisare_inordine(arbore->dreapta);
+    }
+}
+
+void afisare_hash(struct baza_cuvinte *baza, char caracter){
+    for(int i='a';i<='z';++i){
+        if(caracter==i)
+        afisare_preordine(baza->cuvinte[i]);
+        
+    }
+}
+
+void afisare_hash1(struct baza_cuvinte *baza, char caracter){
+    for(int i='a';i<='z';++i){
+        if(caracter==i)
+        afisare_inordine(baza->cuvinte[i]);
+        
+    }
+}
+int cautare_lista(struct nod* lista, char cuvant[21]){
+    struct nod *ptr=lista;
+    int c=0;
+    while(ptr!=NULL){
+        if(strcmp(ptr->cuvant,cuvant)==0){
+            c++;
+            break;
+        }
+        else
+        c++;
+        ptr=ptr->next;
+    }
+    return c;
+}
+void comparare_arbore(struct NOD *arbore, char cuvant[21], int *c, int *gasit){
+    if(arbore != NULL){
+        if((*gasit)==0){
+        if(strcmp(arbore->cuvant,cuvant)==0){
+            (*c)++;
+            (*gasit)=1;
+        }
+        else{
+        if(strcmp(cuvant,arbore->cuvant)<0){
+        comparare_arbore(arbore->stanga,cuvant,c,gasit);
+        (*c)++;
+        }
+        else{
+         comparare_arbore(arbore->dreapta,cuvant,c,gasit);
+         (*c)++;
+        }
+        }
+        
+         
+        
+    }
+   
+}
+}
+int main(){
+    char cuvant[21];
+    struct baza_cuvinte *baza;
+    struct nod *lista=NULL;
+    int comanda;
+    baza=(struct baza_cuvinte*) malloc (sizeof(struct baza_cuvinte));
+    baza->cuvinte=(struct NOD**) malloc (26*sizeof(struct NOD*));
+    for(int i=0;i<26;++i)
+    baza->cuvinte[i]=NULL;
+    while(scanf("%s",cuvant)){
+        if(strcmp(cuvant,"stop")==0)
+        break;
+        else{
+        baza=adauga_baza(baza,cuvant);
+        lista=adauga_cuvant(lista,cuvant);
+        }
+    }
+    scanf("%d",&comanda);
+    if(comanda==1){
+        char caract;
+        scanf(" %c",&caract);
+        afisare_hash(baza,caract);
+    }
+    if(comanda==2){
+        for(int i='a';i<='z';++i)
+        afisare_hash1(baza,i);
+    }
+    if(comanda==3){
+        char cuvintel[21];
+        scanf("%s",cuvintel);
+        int c=0;
+        int gasit=0;
+        comparare_arbore(baza->cuvinte[cuvintel[0]],cuvintel,&c,&gasit);
+        printf("%d\n",c);
+        printf("%d\n",cautare_lista(lista,cuvintel));
+    }
+    return 0;
+}
