@@ -1,0 +1,104 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+typedef struct node{
+    char echipamente[31];
+    struct node *next;
+}node_t;
+node_t *adaugare_echipament(node_t *head, char cuvant[31]){
+    node_t *ptr, *nod_nou;
+    if(head==NULL){
+        head=(node_t*) malloc (sizeof(node_t));
+        if(head!=NULL){
+            strcpy(head->echipamente,cuvant);
+            head->next=NULL;
+        }
+        return head;
+    }
+    ptr=head;
+    while(ptr->next!=NULL){
+        ptr=ptr->next;
+    }
+    nod_nou=(node_t*) malloc (sizeof(node_t));
+    if(nod_nou!=NULL){
+        strcpy(nod_nou->echipamente,cuvant);
+        nod_nou->next=NULL;
+    }
+    ptr->next=nod_nou;
+    return head;
+}
+node_t *StergePrimulNod(node_t *prim){
+    node_t *sters;
+    if(prim->next==NULL){
+        free(prim);
+        return NULL;
+    }
+    else 
+    {
+        sters=prim;
+        prim=prim->next;
+        free(sters);
+        return prim;
+    }
+}
+node_t *StergeUltimulNod(node_t *prim){
+    node_t *ptr=prim, *sters;
+    if(prim->next==NULL){
+        free(prim);
+        return NULL;
+    }
+    while(ptr->next!=NULL){
+        if(ptr->next->next==NULL){
+            sters=ptr->next;
+            ptr->next=NULL;
+            free(sters);
+            return prim;
+        }
+        ptr=ptr->next;
+    }
+}
+node_t *StergeNod(node_t *prim, char cuvant[31]){
+    node_t *ptr=prim, *sters;
+    if(strcmp(prim->echipamente,cuvant)==0)
+        return StergePrimulNod(prim);
+    while(ptr->next!=NULL){
+        if(strcmp(ptr->next->echipamente,cuvant)==0){
+            if(ptr->next->next==NULL)
+            return StergeUltimulNod(prim);
+        
+        else {
+            sters=ptr->next;
+            ptr->next=ptr->next->next;
+            free(sters);
+            return prim;
+        }
+        }
+        ptr=ptr->next;
+    }
+    return prim;
+}
+int main(){
+    int n;
+    int c=0;
+    char echipament[31];
+    char echipamente[31];
+    node_t *cumparaturi=NULL;
+    node_t *ptr=NULL;
+    scanf("%d",&n);
+    for(int i=0;i<n;++i){
+        scanf("%s",echipament);
+        cumparaturi=adaugare_echipament(cumparaturi,echipament);
+    }
+    while(scanf("%s",echipamente)!=EOF){
+        ptr=cumparaturi;
+        while(ptr!=NULL){
+            if(strcmp(ptr->echipamente,echipamente)==0){
+                c++;
+                cumparaturi=StergeNod(cumparaturi,echipamente);
+            }
+            ptr=ptr->next;
+        }
+    }
+    printf("%d",c);
+    return 0;
+}
