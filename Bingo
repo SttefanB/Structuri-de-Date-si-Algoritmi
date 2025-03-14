@@ -1,0 +1,135 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+typedef struct node{
+    int valoare;
+    struct node *next;
+}node_t;
+node_t *adaugare_valoare(node_t *head, int val){
+    node_t *ptr, *nod_nou;
+    if(head==NULL){
+        head=(node_t*) malloc (sizeof(node_t));
+        if(head!=NULL){
+            head->valoare=val;
+            head->next=NULL;
+        }
+        return head;
+    }
+    ptr=head;
+    while(ptr->next!=NULL){
+        ptr=ptr->next;
+    }
+    nod_nou=(node_t*) malloc (sizeof(node_t));
+    if(nod_nou!=NULL){
+        nod_nou->valoare=val;
+        nod_nou->next=NULL;
+    }
+    ptr->next=nod_nou;
+    return head;
+}
+node_t *StergePrimulNod(node_t *head){
+    node_t *sters;
+    if(head->next==NULL){
+        free(head);
+        return NULL;
+    }
+    else {
+        sters=head;
+        head=head->next;
+        free(sters);
+        return head;
+    }
+}
+node_t *StergeUltimulNod(node_t *head){
+    node_t *ptr=head,*sters;
+    if(head->next==NULL){
+        free(head);
+        return NULL;
+    }
+    while(ptr->next!=NULL){
+        if(ptr->next->next==NULL){
+            sters=ptr->next;
+            ptr->next=NULL;
+            free(sters);
+            return head;
+        }
+        ptr=ptr->next;
+    }
+}
+node_t *StergeNod(node_t *head, int numar){
+    node_t *ptr=head, *sters;
+    if(head->valoare==numar)
+    return StergePrimulNod(head);
+    while(ptr->next!=NULL){
+        if(ptr->next->valoare==numar){
+            if(ptr->next->next==NULL)
+            return StergeUltimulNod(head);
+        else {
+            sters=ptr->next;
+            ptr->next=ptr->next->next;
+            free(sters);
+            return head;
+        }
+        }
+        ptr=ptr->next;
+    }
+    return head;
+}
+void afisare_lista(node_t *head){
+    node_t *ptr=head;
+    while(ptr!=NULL){
+        printf("%d ",ptr->valoare);
+        ptr=ptr->next;
+    }
+}
+void ordonare_lista(node_t *head){
+    node_t *node;
+    node_t *ptr=NULL;
+    int schimbat;
+    int aux;
+    do{
+        schimbat=0;
+        node=head;
+        while(node->next!=ptr){
+            if(node->valoare>node->next->valoare){
+                aux=node->valoare;
+                node->valoare=node->next->valoare;
+                node->next->valoare=aux;
+                schimbat=1;
+            }
+            node=node->next;
+        }
+        ptr=node;
+    }while(schimbat);
+}
+int main(){
+    int n;
+    int c;
+    int valori_talon;
+    int numar;
+    node_t *talon=NULL;
+    node_t *ptr=NULL;
+    scanf("%d",&n);
+    for(int i=0;i<n*n; ++i){
+        scanf("%d",&valori_talon);
+        talon=adaugare_valoare(talon,valori_talon);
+    }
+    
+   while(scanf("%d",&numar)!=EOF){
+     ptr=talon;
+     while(ptr!=NULL){
+         if(ptr->valoare==numar){
+            talon=StergeNod(talon,numar);
+            break;
+         }
+         ptr=ptr->next;
+     }
+    }
+    if(talon==NULL)
+    printf("BINGO!");
+    else {
+   ordonare_lista(talon);
+   afisare_lista(talon);
+    }
+    return 0;
+}
