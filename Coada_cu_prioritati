@@ -1,0 +1,156 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+typedef struct node{
+    char prenume[31];
+    char nume[31];
+    int varsta;
+    char gen;
+    int prioritate; //variabila ce indica prioritatea fiecarui nod
+    struct node *next;
+}node_t;
+node_t *adaugare_pacient(node_t *head, char sir1[31], char sir2[31], int ani, char gen, int numar){ //algoritm de adaugare in lista
+node_t *ptr,*nod_nou;
+if(head==NULL){
+    head=(node_t*) malloc (sizeof(node_t));
+    if(head!=NULL){
+        strcpy(head->prenume,sir1);
+        strcpy(head->nume,sir2);
+        head->varsta=ani;
+        head->gen=gen;
+        head->prioritate=numar;
+        head->next=NULL;
+    }
+    return head;
+}
+    ptr=head;
+    while(ptr->next!=NULL){
+        ptr=ptr->next;
+    }
+    nod_nou=(node_t*) malloc (sizeof(node_t));
+    if(nod_nou!=NULL){
+        strcpy(nod_nou->prenume,sir1);
+        strcpy(nod_nou->nume,sir2);
+        nod_nou->varsta=ani;
+        nod_nou->gen=gen;
+        nod_nou->prioritate=numar;
+        nod_nou->next=NULL;
+    }
+    ptr->next=nod_nou;
+    return head;
+}
+void afisare(node_t *head){
+    node_t *ptr=head;
+    while(ptr!=NULL){
+        printf("%s %s %d %c %d\n",ptr->prenume, ptr->nume, ptr->varsta, ptr->gen, ptr->prioritate);
+        ptr=ptr->next;
+    }
+}
+node_t *StergePrimulNod(node_t *head){
+    node_t *sters;
+    if(head->next==NULL){
+        free(head);
+        return NULL;
+    }
+    else {
+        sters=head;
+        head=head->next;
+        free(sters);
+        return head;
+    }
+}
+node_t *StergeUltimulNod(node_t *head){
+    node_t *ptr=head, *sters;
+    if(head->next==NULL){
+        free(head);
+        return NULL;
+    }
+    while(ptr->next!=NULL){
+        if(ptr->next->next==NULL){
+            sters=ptr->next;
+            ptr->next=NULL;
+            free(sters);
+            return head;
+        }
+        ptr=ptr->next;
+    }
+}
+node_t *StergeNod(node_t *head, char prenume[31], char nume[31]){
+    node_t *ptr, *sters;
+    if(strcmp(head->prenume,prenume)==0 && strcmp(head->nume,nume)==0)
+        return StergePrimulNod(head);
+    while(ptr->next!=NULL){
+        if(strcmp(ptr->next->prenume,prenume)==0 && strcmp(ptr->next->nume,nume)==0){
+            if(ptr->next->next==NULL){
+                return StergeUltimulNod(head);
+            }
+        else {
+            sters=ptr->next;
+            ptr->next=ptr->next->next;
+            free(sters);
+            return head;
+        }
+        }
+        ptr=ptr->next;
+    }
+    return head;
+    
+}
+void schimb(node_t *a, node_t *b){
+    node_t ptr;
+    
+    strcpy(ptr.nume,a->nume);
+    strcpy(ptr.prenume,a->prenume);
+    ptr.varsta=a->varsta;
+    ptr.gen=a->gen;
+    ptr.prioritate=a->prioritate;
+    
+     strcpy(a->nume,b->nume);
+     strcpy(a->prenume,b->prenume);
+     a->varsta=b->varsta;
+     a->gen=b->gen;
+     a->prioritate=b->prioritate;
+     
+     strcpy(b->nume,ptr.nume);
+     strcpy(b->prenume,ptr.prenume);
+     b->varsta=ptr.varsta;
+     b->gen=ptr.gen;
+     b->prioritate=ptr.prioritate;
+}
+void OrdonareLista(node_t *head){
+    node_t *node;
+    node_t *ptr=NULL;
+    int schimbat,aux;
+    do{
+        schimbat=0;
+        node=head;
+        while(node->next!=ptr){
+            if(node->prioritate>node->next->prioritate){
+               schimb(node,node->next);
+                schimbat=1;
+            }
+            node=node->next;
+        }
+        ptr=node;
+    }while(schimbat);
+}
+int main(){
+    char simbol='\0';
+    char prenume[31],nume[31],gen;
+    int varsta,prioritate;
+    node_t *urgente=NULL;
+    do{
+        scanf("%c",&simbol);
+        if(simbol=='+'){
+            scanf("%s %s %d %c %d",prenume,nume,&varsta,&gen,&prioritate);
+            urgente=adaugare_pacient(urgente,prenume,nume,varsta,gen,prioritate);
+        }
+        if(simbol=='-'){
+            OrdonareLista(urgente);
+            printf("%s %s %d %c\n",urgente->prenume, urgente->nume, urgente->varsta, urgente->gen);
+            urgente=StergeNod(urgente,urgente->prenume,urgente->nume);
+        }
+    }while(simbol!='*');
+    
+    return 0;
+}
